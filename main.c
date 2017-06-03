@@ -2,8 +2,9 @@
 #include<legacymsp430.h>
 #define SCL BIT6
 #define SDA BIT7
+#define LEDV BIT0
 
- void init_I2C();
+void init_I2C();
 void Receive(unsigned int slave_address, unsigned char data[], unsigned int len);
 
 unsigned int slave_address = 0x68;
@@ -18,6 +19,7 @@ int main(void){
 	DCOCTL = CALDCO_1MHZ;						//
 	TA0CCR0 = 100 -1;							//contador de 16 bits
 	TA0CTL = TASSEL_2 + ID_0 + MC_1 + TAIE;//modo smclk + dividido por 1 + mod de contagem up + habilita interrupção
+	P1DIR = LEDV;
 	init_I2C();
 	_BIS_SR(GIE + LPM0_bits);
 	return 0;
@@ -43,6 +45,7 @@ void init_I2C()
 
 void Receive(unsigned int slave_address, unsigned char data[], unsigned int len)
  {
+	PIOUT ^= LEDV;// verifica se e executada;
  	volatile unsigned int i;
  	UCB0I2CSA = slave_address;
  	while(UCB0CTL1 & UCTXSTP);             // Ensure stop condition got sent
