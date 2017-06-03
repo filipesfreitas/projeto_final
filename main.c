@@ -45,7 +45,7 @@ void init_I2C()
 
 void Receive(unsigned int slave_address, unsigned char data[], unsigned int len)
  {
-	PIOUT ^= LEDV;// verifica se e executada;
+	P1OUT ^= LEDV;// verifica se e executada;
  	volatile unsigned int i;
  	UCB0I2CSA = slave_address;
  	while(UCB0CTL1 & UCTXSTP);             // Ensure stop condition got sent
