@@ -8,7 +8,7 @@ void init_I2C();
 void Receive(unsigned int slave_address, unsigned char data[], unsigned int len);
 
 unsigned int slave_address = 0x68;
-unsigned char data[6];
+unsigned char data[6]="0";
 unsigned int len=6;
 
 
@@ -17,9 +17,10 @@ int main(void){
 	WDTCTL = WDTPW + WDTHOLD;       // Stop watchdog timer
 	BCSCTL1 = CALBC1_1MHZ;					//
 	DCOCTL = CALDCO_1MHZ;						//
-	TA0CCR0 = 100 -1;							//contador de 16 bits
-	TA0CTL = TASSEL_2 + ID_0 + MC_1 + TAIE;//modo smclk + dividido por 1 + mod de contagem up + habilita interrupção
+	TA0CCR0 = 62500 -1;							//contador de 16 bits
+	TA0CTL = TASSEL_2 + ID_3 + MC_1 + TAIE;//modo smclk + dividido por 1 + mod de contagem up + habilita interrupção
 	P1DIR = LEDV;
+	P1OUT = 0;
 	init_I2C();
 	_BIS_SR(GIE + LPM0_bits);
 	return 0;
@@ -45,10 +46,10 @@ void init_I2C()
 
 void Receive(unsigned int slave_address, unsigned char data[], unsigned int len)
  {
-	P1OUT ^= LEDV;// verifica se e executada;
  	volatile unsigned int i;
  	UCB0I2CSA = slave_address;
  	while(UCB0CTL1 & UCTXSTP);             // Ensure stop condition got sent
+	
  	UCB0CTL1 &= ~UCTR ;                     // Clear UCTR
  	UCB0CTL1 |= UCTXSTT;                    // I2C start condition
  	while(UCB0CTL1 & UCTXSTT);             // Start condition sent?
@@ -57,8 +58,12 @@ void Receive(unsigned int slave_address, unsigned char data[], unsigned int len)
  	{
  		if((len-i)==1)
  			UCB0CTL1 |= UCTXSTP;
- 		while((IFG2 & UCB0RXIFG)==0);
+ 		while((IFG2 & UCB0RXIFG)==0){
  		data[i] = UCB0RXBUF;
+			
+	P1OUT ^= LEDV;// verifica se e executada;
+}
  	}
  	while(UCB0CTL1 & UCTXSTP);
+
  }
